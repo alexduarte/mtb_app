@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class LoginPage extends StatefulWidget{
   @override
@@ -81,8 +82,8 @@ class LoginPageState extends State<LoginPage> {
             labelStyle: TextStyle(fontSize: 20.0, color: Colors.black)));
   }
 
-  showSimpleAlertDialog(BuildContext context, String title, String information){
-    Widget okButton = FlatButton(onPressed: (){}, child: Text("OK"));
+  showSimpleAlertDialog(BuildContext context, String title, String information, bool isSucces){
+    Widget okButton = FlatButton(onPressed: () => Navigator.pop(context), child: Text("OK"));
     AlertDialog dialog = new AlertDialog(
           title: Text(title),
           content: Text(information),
@@ -100,10 +101,16 @@ class LoginPageState extends State<LoginPage> {
     Map<String, dynamic> resultObj = jsonDecode(response.body);
 
     if (resultObj['result'][0]['retorno'] != 1){
-      showSimpleAlertDialog(context, "Informação", "Login ou senha incorretos!");
+      showSimpleAlertDialog(context, "Informação", "Login ou senha incorretos!", false);
       _formKey.currentState.reset();
       return;
-    }      
-    Navigator.of(context).pushReplacementNamed("/home");
+    }
+    var dateFormat = DateFormat("dd/MM/yyyy").format(DateTime.parse(resultObj['result'][0]['dataCadastro'])); 
+    showSimpleAlertDialog(context, "Sucesso", 
+    "Código = ${resultObj['result'][0]['codigo']} \n" +
+    "Cpf = ${resultObj['result'][0]['cpf']} \n"+
+    "Data cadastro = $dateFormat \n" +
+    "Nome = ${resultObj['result'][0]['nome']} \n" +
+    "Cidade = ${resultObj['result'][0]['cidade']}" , true);
   }
 }
